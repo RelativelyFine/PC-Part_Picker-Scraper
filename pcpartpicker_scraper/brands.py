@@ -60,4 +60,4 @@ brands = {'1MORE', '1STPLAYER', '3M', 'A4Tech', 'ABS', 'ACGAM', 'ADATA', 'AKG', 
           'Xion', 'Xtrfy', 'Yamaha', 'Yamakasi', 'Yapster', 'Yate Loon', 'ZEROtherm', 'Zalman', 'Zelotes',
           'Zero Infinity', 'Ziotek', 'Zodiac', 'Zogis', 'Zotac', 'Zowie', 'be quiet!',
           'darkFlash', 'fenvi', 'i-rocks', 'iBuypower', 'iDeaUSA', 'iOne', 'iStarUSA', 'iZ3D', 'matias', 'mean:it',
-          'nMEDIAPC'}
+          'nMEDIAPC', 'Creative Labs'}

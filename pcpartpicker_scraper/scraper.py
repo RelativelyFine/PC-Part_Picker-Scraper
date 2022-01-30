@@ -67,9 +67,9 @@ class Scraper:
 
     def get_part_data_for_url(self, url: str) -> tuple:
         driver = self.get_driver()
-        driver.get(url + "#sort=-rating&page=1")
+        driver.get(url)
         manufacturers = get_manufacturers(driver)
-        total_page_number = min(get_number_of_pages(driver), 5)
+        total_page_number = get_number_of_pages(driver)
         products = find_products(driver.page_source)
         if total_page_number == 1:
             driver.quit()
@@ -86,7 +86,7 @@ class Scraper:
             while time.perf_counter() - start_refresh < 30:
                 new_products = find_products(driver.page_source)
                 if set(new_products) == previous_products:
-                    time.sleep(1)
+                    time.sleep(5)
                 else:
                     products.extend(new_products)
                     previous_products = set(new_products)
@@ -140,7 +140,6 @@ def get_number_of_pages(driver) -> int:
     page_list = WebDriverWait(driver, 15).until(
         lambda x: x.find_elements(By.XPATH, '//*[@id="module-pagination"]/ul/li/a'))
     last_button = page_list[-1]
-    print(last_button)
     return int(last_button.text)
 
 

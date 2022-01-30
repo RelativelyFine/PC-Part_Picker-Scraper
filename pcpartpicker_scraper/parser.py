@@ -47,15 +47,13 @@ class Parser:
         :param data: list: A list of the raw string data for the given part.
         :return: Object: Parsed data object.
         """
-        print('----')
-        print(data)
-        print('----')
         brand, model = self.retrieve_brand_info(data[0])
         parsed_data = [brand, model]
         price = self.price(data[-1])
         tokens = data[1:-1]
 
         for x, token in enumerate(tokens):
+
             func = part_funcs[self.part][x]
             if func.__name__ == "hdd_data":  # Handle special case of hdd_data input being None
                 data = func(token)
@@ -125,12 +123,13 @@ class Parser:
 def find_products(html: str) -> list:
     html = lxml.html.fromstring(html)
     part_data = []
-    elements = html.xpath('//*[@id="category_content"]/tr[1]')
-    print("-------")
+    elements = html.xpath(
+        '//*[starts-with(@class, "tr__product product-id-")]')
     for element in elements:
         element_data = element.xpath(
             './/*[@class="td__name"]/a/div[@class="td__nameWrapper"]/p | .//*[contains(@class, "td__spec")] | .//*[@class="td__price"]')
         part_data.append(parse_elements(element_data))
+
     return part_data
 
 
@@ -138,7 +137,6 @@ def parse_elements(elements: list) -> Tuple[Optional[str]]:
     text_elements: List[Optional[str]] = []
     for element in elements:
         text: str = element.xpath("text()")
-        print(text)
         if not text:
             text_elements.append(None)
         elif len(text) == 1:

@@ -1,19 +1,17 @@
 import argparse
-import itertools
-import json
-import os
-from multiprocessing import Pool
-from pathlib import Path
-
-from datetime import datetime
-
-from diskcache import Cache
-from tqdm import tqdm
-
-from pcpartpicker_scraper.mappings import part_classes
-from pcpartpicker_scraper.parser import Parser
-from pcpartpicker_scraper.scraper import Scraper
+from re import I
 from pcpartpicker_scraper.serialization import dataclass_to_dict, dataclass_from_dict
+from pcpartpicker_scraper.scraper import Scraper
+from pcpartpicker_scraper.parser import Parser
+from pcpartpicker_scraper.mappings import part_classes
+from tqdm import tqdm
+from diskcache import Cache
+from datetime import datetime
+from pathlib import Path
+import os
+import json
+import itertools
+from concurrent.futures import ProcessPoolExecutor as Pool
 
 html_doc = """<!DOCTYPE html>
 <html lang="en">
@@ -42,13 +40,9 @@ def scrape_part_region_combo(p):
 
 def scrape_part_data(pool_size):
     supported_parts = {"cpu", "cpu-cooler", "motherboard", "memory", "internal-hard-drive",
-                       "video-card", "power-supply", "case", "case-fan", "fan-controller",
-                       "thermal-paste", "optical-drive", "sound-card", "wired-network-card",
-                       "wireless-network-card", "monitor", "external-hard-drive", "headphones",
-                       "keyboard", "mouse", "speakers", "ups"}
+                       "video-card", "power-supply", "case", "wireless-network-card"}
 
-    supported_regions = {"au", "be", "ca", "de", "es", "fr", "se",
-                         "ie", "it", "nz", "uk", "us"}
+    supported_regions = {"ca", "us"}
 
     cache = Cache("~/ppccache/")
     if "timestamp" in cache:
@@ -69,12 +63,10 @@ def scrape_part_data(pool_size):
     to_scrape = list(itertools.product(supported_parts, supported_regions))
     total_to_scrape = len(to_scrape)
     to_scrape = list(filter(lambda x: x[0] not in cache[x[1]], to_scrape))
-    print(to_scrape)
-
+    pool = Pool(pool_size)
     print(
         f"About to scrape {len(to_scrape)}/{total_to_scrape} part+region combos that are not cached using {pool_size} concurrent requests")
-    for i in range(pool_size):
-        scrape_part_region_combo(to_scrape[i])
+    pool.map(scrape_part_region_combo, to_scrape)
 
 
 def parse_part_data():
@@ -88,7 +80,6 @@ def parse_part_data():
         part_data = cache[region]
         for part, part_data in part_data.items():
             manufacturers, parts = part_data
-            print(manufacturers)
             parser = Parser(region, part, manufacturers)
             pparts = parser.parse(parts)
             parsed_parts[part] = pparts
@@ -145,4 +136,3 @@ if __name__ == "__main__":
     parse_part_data()
     create_json()
     update_html()
-    input()

@@ -101,7 +101,8 @@ def fan_cfm(cfm: str) -> Optional[CFM]:
     :return: Result: Data object representing airflow data.
     """
 
-    nums: List[float] = [float(number) for number in re.findall(num_pattern, cfm)]
+    nums: List[float] = [float(number)
+                         for number in re.findall(num_pattern, cfm)]
     if len(nums) == 2:
         return CFM(nums[0], nums[1], None)
     if len(nums) == 1:
